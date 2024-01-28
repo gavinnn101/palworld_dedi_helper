@@ -1,7 +1,8 @@
 # Palworld dedicated server helper
 Helper utilities for managing a Palworld dedicated server in python. Send rcon commands, backup server, etc.
 
-Tested for use on windows with `steamcmd`. Would likely work on linux with minor changes but is not currently implemented.
+* underlying rcon implementation should work fine on any OS if you want to use it directly.
+* `PalworldUtil` utilizes `steamcmd` and was only tested on Windows. Would likely work on linux with minor changes but is not currently implemented.
 
 ## Setup
 * Install python: https://www.python.org/downloads/
