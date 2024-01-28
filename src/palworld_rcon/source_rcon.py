@@ -107,7 +107,7 @@ class SourceRcon:
                 logger.debug("Connection successful.")
 
             # Authenticate to server rcon before sending command
-            logger.info("Authenticating to server rcon before sending command.")
+            logger.debug("Authenticating to server rcon before sending command.")
             auth_packet = self.create_packet(
                 self.RCON_PASSWORD, type=RCONPacketType.SERVERDATA_AUTH
             )
