@@ -13,7 +13,7 @@ from loguru import logger
 
 # User variables
 AUTOMATIC_RESTART = True  # Automatically restart the server if the process isn't found.
-AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # Set to `-1` if you want automatic restart watcher but no automatic restarts on a timer.
+AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # Set to -1 if you don't want automatic restarts on a timer.
 BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
 BACKUP_EVERY_X_MINUTES = 240  # Set to -1 if you don't want to backup on a timer.
 ROTATE_AFTER_X_BACKUPS = 5  # Set to -1 if you don't want to rotate backups.
