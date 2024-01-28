@@ -115,8 +115,14 @@ class PalworldUtil:
             ]
         )
 
-    def launch_server(self):
+    def launch_server(self, check_for_server_updates: bool = True):
         """Launches Palserver with specified parameters."""
+        # Check for server updates before launching.
+        if check_for_server_updates:
+            self.update_game_server()
+        else:
+            logger.info("Skipping game server updates.")
+
         # Change to Palserver.exe directory if needed.
         if os.getcwd() != self.palworld_server_dir:
             logger.info(f"Changing to palworld server dir: {self.palworld_server_dir}")
@@ -198,11 +204,5 @@ class PalworldUtil:
         else:
             logger.info("Skipping server backup.")
 
-        # Check for server updates before launching.
-        if check_for_server_updates:
-            self.update_game_server()
-        else:
-            logger.info("Skipping game server updates.")
-
         # Launch server.
-        self.launch_server()
+        self.launch_server(check_for_server_updates=check_for_server_updates)
