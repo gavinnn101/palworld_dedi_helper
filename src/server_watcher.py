@@ -13,6 +13,7 @@ from loguru import logger
 
 # User variables
 AUTOMATIC_RESTART = True  # Automatically restart the server if the process isn't found.
+WAIT_BEFORE_RESTART_SECONDS = 300   # Seconds to wait/warn before restart process.
 AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # -1 if you don't want to restart on a timer.
 BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
 BACKUP_EVERY_X_MINUTES = 240  # -1 if you don't want to backup on a timer.
@@ -105,6 +106,8 @@ def main():
         pal.rotate_after_x_backups = ROTATE_AFTER_X_BACKUPS
     else:
         pal.rotate_backups = False
+    
+    pal.wait_before_restart_seconds = WAIT_BEFORE_RESTART_SECONDS
 
     try:
         watcher_loop(pal)
