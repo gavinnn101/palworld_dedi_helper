@@ -23,8 +23,11 @@ pal.rotate_after_x_backups = 3  # Delete oldest backup after 3 backups.
 # Create a server backup.
 pal.take_server_backup()
 
-# Send a broadcast to the server.
+# Send an rcon command to the server.
 pal.rcon.run_command(command="Broadcast", args=["test"])
+
+# Send a broadcast to the server.
+pal.log_and_broadcast("Hello, world!")
 
 # Restart the server.
 # pal.restart_server(save_game=True, check_for_server_updates=True, backup_server=False)
