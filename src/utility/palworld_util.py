@@ -31,7 +31,9 @@ class PalworldUtil:
         rotate_after_x_backups: int = 5,
     ) -> None:
         self.steamcmd_dir = steamcmd_dir  # Path to steamcmd.exe directory.
-        self.palworld_server_dir = Path( Path(self.steamcmd_dir) / "steamapps" / "common" / "PalServer")  # Full path to the root directory of your palworld server files.
+        self.palworld_server_dir = Path(
+            Path(self.steamcmd_dir) / "steamapps" / "common" / "PalServer"
+        )  # Full path to the root directory of your palworld server files.
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
         self.server_name = server_name  # What you want the server name to be.
 
@@ -58,7 +60,7 @@ class PalworldUtil:
                 self.backups_dir.mkdir(parents=True, exist_ok=True)
         else:
             self.backups_dir = Path(backup_dir)
-        
+
         self.rotate_backups = rotate_backups
         self.rotate_after_x_backups = rotate_after_x_backups
 
@@ -139,7 +141,10 @@ class PalworldUtil:
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
-        destination_folder = os.path.join(self.backups_dir, os.path.basename(self.palworld_server_save_dir) + "_" + timestamp)
+        destination_folder = os.path.join(
+            self.backups_dir,
+            os.path.basename(self.palworld_server_save_dir) + "_" + timestamp,
+        )
 
         logger.info(f"Copying: {self.palworld_server_save_dir} -> {destination_folder}")
         shutil.copytree(self.palworld_server_save_dir, destination_folder)
@@ -152,7 +157,7 @@ class PalworldUtil:
         backups = sorted(self.backups_dir.iterdir(), key=os.path.getmtime)
 
         # Keep only the newest backups
-        backups_to_delete = backups[:-self.rotate_after_x_backups]
+        backups_to_delete = backups[: -self.rotate_after_x_backups]
         for backup in backups_to_delete:
             if backup.is_dir():
                 shutil.rmtree(backup)
