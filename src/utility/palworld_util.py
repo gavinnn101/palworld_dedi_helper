@@ -78,7 +78,11 @@ class PalworldUtil:
                 logger.exception(message)
             case "success":
                 logger.success(message)
-        self.rcon.run_command("Broadcast", [message.replace(" ", "_")])
+        try:
+            self.rcon.run_command("Broadcast", [message.replace(" ", "_")])
+        except OSError as e:
+            logger.warning(f"Not able to send broadcast via log_and_broadcast(). Server online?")
+            logger.debug(f"log_and_broadcast() error: {e}")
 
     def save_server_state(self) -> bool:
         """Tries to send an rcon command to save the server / game state.
