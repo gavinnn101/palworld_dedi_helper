@@ -13,11 +13,11 @@ from loguru import logger
 
 # User variables
 AUTOMATIC_RESTART = True  # Automatically restart the server if the process isn't found.
-AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # Set to -1 if you don't want automatic restarts on a timer.
+AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # -1 if you don't want to restart on a timer.
 BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
-BACKUP_EVERY_X_MINUTES = 240  # Set to -1 if you don't want to backup on a timer.
-ROTATE_AFTER_X_BACKUPS = 5  # Set to -1 if you don't want to rotate backups.
-ROTATE_LOGS_EVERY_X_RUNS = 5  # Set to -1 if you don't want to log to file.
+BACKUP_EVERY_X_MINUTES = 240  # -1 if you don't want to backup on a timer.
+ROTATE_AFTER_X_BACKUPS = 5  # -1 if you don't want to rotate backups.
+ROTATE_LOGS_EVERY_X_RUNS = 5  # -1 if you don't want to log to file.
 LOG_LEVEL = "INFO"
 LOGS_DIR = "logs"
 
@@ -53,7 +53,7 @@ def watcher_loop(pal: PalworldUtil):
             BACKUP_EVERY_X_MINUTES > 0
             and calculate_minutes_elapsed(last_backup) >= BACKUP_EVERY_X_MINUTES
         ):
-            pal.log_and_broadcast("Taking server backup...")
+            logger.info("Taking server backup...")
             pal.take_server_backup()
             last_backup = time.time()
             logger.info(f"Next backup in: {BACKUP_EVERY_X_MINUTES} minutes")
@@ -70,12 +70,12 @@ def watcher_loop(pal: PalworldUtil):
                 )
 
             elif minutes_since_last_restart >= AUTOMATIC_RESTART_EVERY_X_MINUTES:
-                logger.info(
-                    f"Restarting server after {minutes_since_last_restart:.2f} minutes..."
+                pal.log_and_broadcast(
+                    f"Restarting server after {minutes_since_last_restart} minutes..."
                 )
                 pal.restart_server(backup_server=BACKUP_ON_RESTART)
                 last_restart = time.time()
-                logger.info(
+                pal.log_and_broadcast(
                     f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
                 )
 
