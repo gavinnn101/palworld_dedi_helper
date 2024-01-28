@@ -54,7 +54,7 @@ def watcher_loop(pal: PalworldUtil):
                     pal.log_and_broadcast(
                         f"It's been {minutes_since_last_restart} minutes since last restart, restarting server..."
                     )
-                    pal.restart_server()
+                    pal.restart_server(backup_server=BACKUP_ON_RESTART)
                     last_restart = current_time
 
         logger.info(f"Sleeping {LOOP_SLEEP} seconds before next loop...")
