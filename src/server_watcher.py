@@ -57,7 +57,7 @@ def watcher_loop(pal: PalworldUtil):
                     pal.restart_server(backup_server=BACKUP_ON_RESTART)
                     last_restart = current_time
 
-        logger.info(f"Sleeping {LOOP_SLEEP} seconds before next loop...")
+        # logger.info(f"Sleeping {LOOP_SLEEP} seconds before next loop...")
         time.sleep(LOOP_SLEEP)
 
 
@@ -75,3 +75,5 @@ def main():
     except KeyboardInterrupt:
         logger.info("Caught keyboard interrupt, ending server_watcher...")
         sys.exit(0)
+
+main()
