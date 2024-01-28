@@ -8,6 +8,7 @@ Helper utilities for managing a Palworld dedicated server in python. Send rcon c
 ## Usage
 * See `./src/example.py` for basic usage.
 * See `./src/utility/palworld_util.py` for advanced params, etc.
+* See `./src/server_watcher.py` for automatic server restarts, backups, etc.
 
 # Contributing
 Feel free to open issues or pull requests as long as they're constructive / useful.
