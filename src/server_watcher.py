@@ -18,6 +18,7 @@ BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
 BACKUP_EVERY_X_MINUTES = 240  # Set to -1 if you don't want to backup on a timer.
 ROTATE_AFTER_X_BACKUPS = 5  # Set to -1 if you don't want to rotate backups.
 ROTATE_LOGS_EVERY_X_RUNS = 5  # Set to -1 if you don't want to log to file.
+LOG_LEVEL = "INFO"
 LOGS_DIR = "logs"
 
 
@@ -90,7 +91,7 @@ def main():
         # Add logging sink to file and rotate every ROTATE_LOGS_EVERY_X_RUNS runs/logs.
         logger.add(
             logs_path / "log_{time}.txt",
-            level="INFO",
+            level=LOG_LEVEL,
             colorize=False,
             backtrace=True,
             diagnose=True,
