@@ -6,6 +6,8 @@ import os
 import sys
 import time
 
+from pathlib import Path
+
 from loguru import logger
 
 
@@ -13,10 +15,10 @@ from loguru import logger
 AUTOMATIC_RESTART = True  # Automatically restart the server if the process isn't found.
 AUTOMATIC_RESTART_EVERY_X_MINUTES = 720  # Set to `-1` if you want automatic restart watcher but no automatic restarts on a timer.
 BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
-AUTOMATIC_BACKUPS = True  # Automatically backup on timer
+BACKUP_EVERY_X_MINUTES = 240  # Set to -1 if you don't want to backup on a timer.
 ROTATE_AFTER_X_BACKUPS = 5  # Set to -1 if you don't want to rotate backups.
-BACKUP_EVERY_X_MINUTES = 240
-ROTATE_LOGS_EVERY_X_RUNS = 5    # Set to -1 if you don't want to log to file.
+ROTATE_LOGS_EVERY_X_RUNS = 5  # Set to -1 if you don't want to log to file.
+LOGS_DIR = "logs"
 
 
 STEAMCMD_DIR = os.getenv("steamcmd_dir")
@@ -28,50 +30,71 @@ RCON_PORT = int(os.getenv("palworld_rcon_port"))
 LOOP_SLEEP = 30
 
 
+def calculate_minutes_elapsed(last_time):
+    return (time.time() - last_time) / 60
+
+
+def log_initial_timers():
+    if AUTOMATIC_RESTART:
+        logger.info(
+            f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
+        )
+    if BACKUP_EVERY_X_MINUTES > 0:
+        logger.info(f"Next backup in: {BACKUP_EVERY_X_MINUTES} minutes")
+
+
 def watcher_loop(pal: PalworldUtil):
-    last_restart = time.time()
-    last_backup = time.time()
+    last_restart = last_backup = time.time()
+    log_initial_timers()
+
     while True:
-        current_time = time.time()
-        if BACKUP_EVERY_X_MINUTES > 0:
-            minutes_since_last_backup = (current_time - last_backup) / 60
-            if minutes_since_last_backup >= BACKUP_EVERY_X_MINUTES:
-                pal.log_and_broadcast("Taking server backup...")
-                pal.take_server_backup()
-                last_backup = current_time
+        if (
+            BACKUP_EVERY_X_MINUTES > 0
+            and calculate_minutes_elapsed(last_backup) >= BACKUP_EVERY_X_MINUTES
+        ):
+            pal.log_and_broadcast("Taking server backup...")
+            pal.take_server_backup()
+            last_backup = time.time()
+            logger.info(f"Next backup in: {BACKUP_EVERY_X_MINUTES} minutes")
 
         if AUTOMATIC_RESTART:
-            minutes_since_last_restart = (current_time - last_restart) / 60
+            minutes_since_last_restart = calculate_minutes_elapsed(last_restart)
 
             if not check_for_process(pal.palworld_server_proc_name):
-                logger.info(
-                    f"Couldn't find Palworld server process ({pal.palworld_server_proc_name}), restarting..."
-                )
+                logger.info(f"Server process not found, restarting...")
                 pal.launch_server()
-                last_restart = current_time
+                last_restart = time.time()
+                logger.info(
+                    f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
+                )
 
-            elif AUTOMATIC_RESTART_EVERY_X_MINUTES > 0:
-                if minutes_since_last_restart >= AUTOMATIC_RESTART_EVERY_X_MINUTES:
-                    pal.log_and_broadcast(
-                        f"It's been {minutes_since_last_restart} minutes since last restart, restarting server..."
-                    )
-                    pal.restart_server(backup_server=BACKUP_ON_RESTART)
-                    last_restart = current_time
+            elif minutes_since_last_restart >= AUTOMATIC_RESTART_EVERY_X_MINUTES:
+                logger.info(
+                    f"Restarting server after {minutes_since_last_restart:.2f} minutes..."
+                )
+                pal.restart_server(backup_server=BACKUP_ON_RESTART)
+                last_restart = time.time()
+                logger.info(
+                    f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
+                )
 
-        # logger.info(f"Sleeping {LOOP_SLEEP} seconds before next loop...")
         time.sleep(LOOP_SLEEP)
 
 
 def main():
     if ROTATE_LOGS_EVERY_X_RUNS > 0:
+        logs_path = Path(LOGS_DIR)
+        if not os.path.exists(logs_path):
+            logger.info(f"Creating logs dir: {logs_path}")
+            logs_path.mkdir(exist_ok=True)
         # Add logging sink to file and rotate every ROTATE_LOGS_EVERY_X_RUNS runs/logs.
         logger.add(
-            "log_{time}.txt",
+            logs_path / "log_{time}.txt",
             level="INFO",
             colorize=False,
             backtrace=True,
             diagnose=True,
-            retention=ROTATE_LOGS_EVERY_X_RUNS
+            retention=ROTATE_LOGS_EVERY_X_RUNS,
         )
 
     # Create PalworldUtil instance with required vars only.
@@ -87,5 +110,6 @@ def main():
     except KeyboardInterrupt:
         logger.info("Caught keyboard interrupt, ending server_watcher...")
         sys.exit(0)
+
 
 main()
