@@ -115,10 +115,10 @@ class PalworldUtil:
             ]
         )
 
-    def launch_server(self, check_for_server_updates: bool = True):
+    def launch_server(self, update_server: bool = True):
         """Launches Palserver with specified parameters."""
         # Check for server updates before launching.
-        if check_for_server_updates:
+        if update_server:
             self.update_game_server()
         else:
             logger.info("Skipping game server updates.")
@@ -195,7 +195,7 @@ class PalworldUtil:
             kill_process(self.palworld_server_proc_name)
         else:
             logger.error(
-                f"Couldn't find palworld server process! ({self.palworld_server_proc_name})"
+                f"Couldn't find palworld server process: ({self.palworld_server_proc_name})"
             )
 
         # Take backup of server if needed.
@@ -205,4 +205,4 @@ class PalworldUtil:
             logger.info("Skipping server backup.")
 
         # Launch server.
-        self.launch_server(check_for_server_updates=check_for_server_updates)
+        self.launch_server(update_server=check_for_server_updates)
