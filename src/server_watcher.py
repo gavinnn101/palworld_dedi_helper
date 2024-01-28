@@ -16,6 +16,7 @@ BACKUP_ON_RESTART = True  # Save a backup when the server restarts.
 AUTOMATIC_BACKUPS = True  # Automatically backup on timer
 ROTATE_AFTER_X_BACKUPS = 5  # Set to -1 if you don't want to rotate backups.
 BACKUP_EVERY_X_MINUTES = 240
+ROTATE_LOGS_EVERY_X_RUNS = 5    # Set to -1 if you don't want to log to file.
 
 
 STEAMCMD_DIR = os.getenv("steamcmd_dir")
@@ -62,6 +63,17 @@ def watcher_loop(pal: PalworldUtil):
 
 
 def main():
+    if ROTATE_LOGS_EVERY_X_RUNS > 0:
+        # Add logging sink to file and rotate every ROTATE_LOGS_EVERY_X_RUNS runs/logs.
+        logger.add(
+            "log_{time}.txt",
+            level="INFO",
+            colorize=False,
+            backtrace=True,
+            diagnose=True,
+            retention=ROTATE_LOGS_EVERY_X_RUNS
+        )
+
     # Create PalworldUtil instance with required vars only.
     pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD)
 
