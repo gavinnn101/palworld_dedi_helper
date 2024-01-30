@@ -8,13 +8,23 @@ from loguru import logger
 
 
 @dataclass
+class RCONPacketType:
+    SERVERDATA_AUTH: int = 3
+    SERVERDATA_AUTH_RESPONSE: int = 2
+    SERVERDATA_EXECCOMMAND: int = 2
+    SERVERDATA_RESPONSE_VALUE: int = 0
+
+
+@dataclass
 class RconPacket:
     # https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Basic_Packet_Structure
     size: int = None
     id: int = None
-    type: int = None
+    type: RCONPacketType = None
     body: str = None
     terminator: bytes = b"\x00"
+    RCON_PACKET_HEADER_LENGTH = 12
+    RCON_PACKET_TERMINATOR_LENGTH = 2
 
     def pack(self):
         body_encoded = (
@@ -29,13 +39,18 @@ class RconPacket:
             + self.terminator
         )
 
+    @staticmethod
+    def unpack(packet: bytes):
+        if len(packet) < RconPacket.RCON_PACKET_HEADER_LENGTH:
+            return RconPacket(size=None, id=None, type=None, body="Invalid packet")
 
-@dataclass
-class RCONPacketType:
-    SERVERDATA_AUTH: int = 3
-    SERVERDATA_AUTH_RESPONSE: int = 2
-    SERVERDATA_EXECCOMMAND: int = 2
-    SERVERDATA_RESPONSE_VALUE: int = 0
+        size, request_id, type = struct.unpack(
+            "<iii", packet[: RconPacket.RCON_PACKET_HEADER_LENGTH]
+        )
+        body = packet[
+            RconPacket.RCON_PACKET_HEADER_LENGTH : -RconPacket.RCON_PACKET_TERMINATOR_LENGTH
+        ].decode("utf-8", errors="replace")
+        return RconPacket(size=size, id=request_id, type=type, body=body)
 
 
 class SourceRcon:
@@ -45,8 +60,6 @@ class SourceRcon:
         self.RCON_PASSWORD = rcon_password
 
         self.AUTH_FAILED_RESPONSE = -1
-        self.RCON_PACKET_HEADER_LENGTH = 12
-        self.RCON_PACKET_TERMINATOR_LENGTH = 2
 
     def create_packet(
         self,
@@ -75,74 +88,55 @@ class SourceRcon:
                 break
         return response
 
-    def decode_response(self, response: bytes) -> str:
-        if len(response) < self.RCON_PACKET_HEADER_LENGTH:
-            return "Invalid response"
-        size, request_id, type = struct.unpack(
-            "<iii", response[: self.RCON_PACKET_HEADER_LENGTH]
-        )
-        if size <= 10:
-            return "No response body or empty response."
-        try:
-            # Decode response with UTF-8
-            body = response[
-                self.RCON_PACKET_HEADER_LENGTH : -self.RCON_PACKET_TERMINATOR_LENGTH
-            ].decode("utf-8")
-        except UnicodeDecodeError as e:
-            # If UTF-8 decoding fails, use "replace" error handling
-            logger.warning(f"UnicodeDecodeError: {e}")
-            body = response[
-                self.RCON_PACKET_HEADER_LENGTH : -self.RCON_PACKET_TERMINATOR_LENGTH
-            ].decode("utf-8", errors="replace")
-        return body
+    def check_auth_response(self, auth_response_packet: bytes) -> bool:
+        unpacked_packet = RconPacket.unpack(auth_response_packet)
 
-    def get_auth_response(self, auth_response_packet: bytes) -> bool:
-        if len(auth_response_packet) < self.RCON_PACKET_HEADER_LENGTH:
-            return "Invalid response"
-        size, request_id, type = struct.unpack(
-            "<iii", auth_response_packet[: self.RCON_PACKET_HEADER_LENGTH]
-        )
+        if (
+            unpacked_packet.size is None
+            or unpacked_packet.type != RCONPacketType.SERVERDATA_AUTH_RESPONSE
+        ):
+            logger.error("Invalid response or wrong packet type.")
+            return False
 
-        if type == RCONPacketType.SERVERDATA_AUTH_RESPONSE:
-            if request_id == self.AUTH_FAILED_RESPONSE:
-                return False
-            else:
-                return True
+        return unpacked_packet.id != self.AUTH_FAILED_RESPONSE
+
+    def auth_to_rcon(self, socket: socket.socket) -> bool:
+        # Authenticate to server rcon before sending command
+        logger.debug("Authenticating to server rcon before sending command.")
+        auth_packet = self.create_packet(
+            self.RCON_PASSWORD, type=RCONPacketType.SERVERDATA_AUTH
+        )
+        socket.sendall(auth_packet)
+
+        # Get and parse authentication response
+        auth_response = self.receive_all(socket)
+        if self.check_auth_response(auth_response):
+            logger.debug("Authentication successful.")
+            return True
         else:
-            logger.error("get_auth_response was given a packet of wrong type.")
+            logger.error("Authentication failed. Not running command.")
+            return False
 
     def send_command(self, command: str) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
                 s.connect((self.SERVER_IP, self.RCON_PORT))
             except socket.error as e:
-                connection_error_msg = f"Failed to connect to socket before sending command. Error: {e}"
+                connection_error_msg = (
+                    f"Failed to connect to socket before sending command. Error: {e}"
+                )
                 logger.error(connection_error_msg)
                 return connection_error_msg
             else:
                 logger.debug("Connection successful.")
 
-            # Authenticate to server rcon before sending command
-            logger.debug("Authenticating to server rcon before sending command.")
-            auth_packet = self.create_packet(
-                self.RCON_PASSWORD, type=RCONPacketType.SERVERDATA_AUTH
-            )
-            s.sendall(auth_packet)
+            if self.auth_to_rcon(socket=s):
+                # Send command
+                command_packet = self.create_packet(command)
+                s.sendall(command_packet)
 
-            # Get and parse authentication response
-            auth_response = self.receive_all(s)
-            if self.get_auth_response(auth_response):
-                logger.debug("Authentication successful.")
-            else:
-                logger.error("Authentication failed. Not running command.")
-                return ""
-
-            # Send command
-            command_packet = self.create_packet(command)
-            s.sendall(command_packet)
-
-            # Get command response
-            response = self.receive_all(s)
-            decoded_response = self.decode_response(response)
-            logger.debug(decoded_response)
-            return decoded_response
+                # Get command response
+                response = self.receive_all(s)
+                unpacked_packet = RconPacket.unpack(response)
+                logger.debug(f"Command response: {unpacked_packet.body}")
+                return unpacked_packet.body
