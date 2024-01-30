@@ -23,8 +23,8 @@ class RconPacket:
     type: RCONPacketType = None
     body: str = None
     terminator: bytes = b"\x00"
-    RCON_PACKET_HEADER_LENGTH = 12
-    RCON_PACKET_TERMINATOR_LENGTH = 2
+    RCON_PACKET_HEADER_LENGTH: int = 12
+    RCON_PACKET_TERMINATOR_LENGTH: int = 2
 
     def pack(self):
         body_encoded = (
