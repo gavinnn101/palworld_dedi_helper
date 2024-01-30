@@ -116,7 +116,9 @@ class SourceRcon:
             try:
                 s.connect((self.SERVER_IP, self.RCON_PORT))
             except socket.error as e:
-                logger.error(f"Failed to connect to socket. Error: {e}")
+                connection_error_msg = f"Failed to connect to socket before sending command. Error: {e}"
+                logger.error(connection_error_msg)
+                return connection_error_msg
             else:
                 logger.debug("Connection successful.")
 
