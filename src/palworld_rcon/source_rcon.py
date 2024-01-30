@@ -44,6 +44,10 @@ class SourceRcon:
         self.RCON_PORT = rcon_port
         self.RCON_PASSWORD = rcon_password
 
+        self.AUTH_FAILED_RESPONSE = -1
+        self.RCON_PACKET_HEADER_LENGTH = 12
+        self.RCON_PACKET_TERMINATOR_LENGTH = 2
+
     def create_packet(
         self, command, request_id=1, type=RCONPacketType.SERVERDATA_EXECCOMMAND
     ):
@@ -69,28 +73,27 @@ class SourceRcon:
         return response
 
     def decode_response(self, response):
-        if len(response) < 12:
+        if len(response) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
-        size, request_id, type = struct.unpack("<iii", response[:12])
+        size, request_id, type = struct.unpack("<iii", response[:self.RCON_PACKET_HEADER_LENGTH])
         if size <= 10:
             return "No response body or empty response."
         try:
             # Decode response with UTF-8
-            body = response[12:-2].decode("utf-8")
+            body = response[self.RCON_PACKET_HEADER_LENGTH:-self.RCON_PACKET_TERMINATOR_LENGTH].decode("utf-8")
         except UnicodeDecodeError as e:
             # If UTF-8 decoding fails, use "replace" error handling
             logger.warning(f"UnicodeDecodeError: {e}")
-            body = response[12:-2].decode("utf-8", errors="replace")
+            body = response[self.RCON_PACKET_HEADER_LENGTH:-self.RCON_PACKET_TERMINATOR_LENGTH].decode("utf-8", errors="replace")
         return body
 
     def get_auth_response(self, auth_response_packet):
-        if len(auth_response_packet) < 12:
+        if len(auth_response_packet) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
-        size, request_id, type = struct.unpack("<iii", auth_response_packet[:12])
+        size, request_id, type = struct.unpack("<iii", auth_response_packet[:self.RCON_PACKET_HEADER_LENGTH])
 
         if type == RCONPacketType.SERVERDATA_AUTH_RESPONSE:
-            # If request_id is -1, authentication failed
-            if request_id == -1:
+            if request_id == self.AUTH_FAILED_RESPONSE:
                 return False
             else:
                 return True
