@@ -49,7 +49,10 @@ class SourceRcon:
         self.RCON_PACKET_TERMINATOR_LENGTH = 2
 
     def create_packet(
-        self, command: str, request_id: int = 1, type: RCONPacketType = RCONPacketType.SERVERDATA_EXECCOMMAND
+        self,
+        command: str,
+        request_id: int = 1,
+        type: RCONPacketType = RCONPacketType.SERVERDATA_EXECCOMMAND,
     ):
         packet = RconPacket(id=request_id, type=type, body=command)
         final_packet = packet.pack()
@@ -75,22 +78,30 @@ class SourceRcon:
     def decode_response(self, response: bytes) -> str:
         if len(response) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
-        size, request_id, type = struct.unpack("<iii", response[:self.RCON_PACKET_HEADER_LENGTH])
+        size, request_id, type = struct.unpack(
+            "<iii", response[: self.RCON_PACKET_HEADER_LENGTH]
+        )
         if size <= 10:
             return "No response body or empty response."
         try:
             # Decode response with UTF-8
-            body = response[self.RCON_PACKET_HEADER_LENGTH:-self.RCON_PACKET_TERMINATOR_LENGTH].decode("utf-8")
+            body = response[
+                self.RCON_PACKET_HEADER_LENGTH : -self.RCON_PACKET_TERMINATOR_LENGTH
+            ].decode("utf-8")
         except UnicodeDecodeError as e:
             # If UTF-8 decoding fails, use "replace" error handling
             logger.warning(f"UnicodeDecodeError: {e}")
-            body = response[self.RCON_PACKET_HEADER_LENGTH:-self.RCON_PACKET_TERMINATOR_LENGTH].decode("utf-8", errors="replace")
+            body = response[
+                self.RCON_PACKET_HEADER_LENGTH : -self.RCON_PACKET_TERMINATOR_LENGTH
+            ].decode("utf-8", errors="replace")
         return body
 
     def get_auth_response(self, auth_response_packet: bytes) -> bool:
         if len(auth_response_packet) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
-        size, request_id, type = struct.unpack("<iii", auth_response_packet[:self.RCON_PACKET_HEADER_LENGTH])
+        size, request_id, type = struct.unpack(
+            "<iii", auth_response_packet[: self.RCON_PACKET_HEADER_LENGTH]
+        )
 
         if type == RCONPacketType.SERVERDATA_AUTH_RESPONSE:
             if request_id == self.AUTH_FAILED_RESPONSE:
