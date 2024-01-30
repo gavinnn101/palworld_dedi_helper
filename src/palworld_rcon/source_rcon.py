@@ -9,6 +9,7 @@ from loguru import logger
 
 from enum import Enum
 
+
 class RCONPacketType(Enum):
     SERVERDATA_AUTH = 3
     SERVERDATA_AUTH_RESPONSE = 2
@@ -118,26 +119,30 @@ class SourceRcon:
             logger.error("rcon authentication failed. Not running command.")
             return False
 
+    def establish_connection(self, socket: socket.socket) -> bool:
+        try:
+            socket.connect((self.SERVER_IP, self.RCON_PORT))
+            logger.debug("Socket connection successful.")
+            return True
+        except socket.error as e:
+            logger.error(f"Failed to connect to socket. Error: {e}")
+            return False
+
+    def execute_command(self, socket: socket.socket, command: str) -> str:
+        command_packet = self.create_packet(command)
+        socket.sendall(command_packet)
+
+        response = self.receive_all(socket)
+        unpacked_packet = RconPacket.unpack(response)
+        logger.debug(f"Command response: {unpacked_packet.body}")
+        return unpacked_packet.body
+
     def send_command(self, command: str) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.connect((self.SERVER_IP, self.RCON_PORT))
-            except socket.error as e:
-                connection_error_msg = (
-                    f"Failed to connect to socket before sending command. Error: {e}"
-                )
-                logger.error(connection_error_msg)
-                return connection_error_msg
-            else:
-                logger.debug("socket connection successful.")
+            if not self.establish_connection(s):
+                return "Failed to establish connection."
 
-            if self.auth_to_rcon(socket=s):
-                # Send command
-                command_packet = self.create_packet(command)
-                s.sendall(command_packet)
+            if not self.auth_to_rcon(s):
+                return "Authentication failed."
 
-                # Get command response
-                response = self.receive_all(s)
-                unpacked_packet = RconPacket.unpack(response)
-                logger.debug(f"Command response: {unpacked_packet.body}")
-                return unpacked_packet.body
+            return self.execute_command(s, command)
