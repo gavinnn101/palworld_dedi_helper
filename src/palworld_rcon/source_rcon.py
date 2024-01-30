@@ -49,7 +49,7 @@ class SourceRcon:
         self.RCON_PACKET_TERMINATOR_LENGTH = 2
 
     def create_packet(
-        self, command, request_id=1, type=RCONPacketType.SERVERDATA_EXECCOMMAND
+        self, command: str, request_id: int = 1, type: RCONPacketType = RCONPacketType.SERVERDATA_EXECCOMMAND
     ):
         packet = RconPacket(id=request_id, type=type, body=command)
         final_packet = packet.pack()
@@ -57,7 +57,7 @@ class SourceRcon:
         logger.debug(f"Final packet: {final_packet}")
         return final_packet
 
-    def receive_all(self, sock, bytes_in: int = 4096):
+    def receive_all(self, sock: socket.socket, bytes_in: int = 4096) -> bytes:
         response = b""
         while True:
             try:
@@ -72,7 +72,7 @@ class SourceRcon:
                 break
         return response
 
-    def decode_response(self, response):
+    def decode_response(self, response: bytes) -> str:
         if len(response) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
         size, request_id, type = struct.unpack("<iii", response[:self.RCON_PACKET_HEADER_LENGTH])
@@ -87,7 +87,7 @@ class SourceRcon:
             body = response[self.RCON_PACKET_HEADER_LENGTH:-self.RCON_PACKET_TERMINATOR_LENGTH].decode("utf-8", errors="replace")
         return body
 
-    def get_auth_response(self, auth_response_packet):
+    def get_auth_response(self, auth_response_packet: bytes) -> bool:
         if len(auth_response_packet) < self.RCON_PACKET_HEADER_LENGTH:
             return "Invalid response"
         size, request_id, type = struct.unpack("<iii", auth_response_packet[:self.RCON_PACKET_HEADER_LENGTH])
@@ -100,7 +100,7 @@ class SourceRcon:
         else:
             logger.error("get_auth_response was given a packet of wrong type.")
 
-    def send_command(self, command):
+    def send_command(self, command: str) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
                 s.connect((self.SERVER_IP, self.RCON_PORT))
