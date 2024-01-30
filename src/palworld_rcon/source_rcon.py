@@ -111,10 +111,10 @@ class SourceRcon:
         # Get and parse authentication response
         auth_response = self.receive_all(socket)
         if self.check_auth_response(auth_response):
-            logger.debug("Authentication successful.")
+            logger.debug("rcon authentication successful.")
             return True
         else:
-            logger.error("Authentication failed. Not running command.")
+            logger.error("rcon authentication failed. Not running command.")
             return False
 
     def send_command(self, command: str) -> str:
@@ -128,7 +128,7 @@ class SourceRcon:
                 logger.error(connection_error_msg)
                 return connection_error_msg
             else:
-                logger.debug("Connection successful.")
+                logger.debug("socket connection successful.")
 
             if self.auth_to_rcon(socket=s):
                 # Send command
