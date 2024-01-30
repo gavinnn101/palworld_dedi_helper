@@ -25,6 +25,5 @@ class PalworldRcon:
 
     def run_command(self, command: str, args: list = []) -> str:
         packet = self.COMMANDS[command] + " " + " ".join(args)
-        print(f"Packet: {packet}")
         response = self.rcon.send_command(packet)
         return response
