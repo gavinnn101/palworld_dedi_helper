@@ -7,12 +7,13 @@ from dataclasses import dataclass
 from loguru import logger
 
 
-@dataclass
-class RCONPacketType:
-    SERVERDATA_AUTH: int = 3
-    SERVERDATA_AUTH_RESPONSE: int = 2
-    SERVERDATA_EXECCOMMAND: int = 2
-    SERVERDATA_RESPONSE_VALUE: int = 0
+from enum import Enum
+
+class RCONPacketType(Enum):
+    SERVERDATA_AUTH = 3
+    SERVERDATA_AUTH_RESPONSE = 2
+    SERVERDATA_EXECCOMMAND = 2
+    SERVERDATA_RESPONSE_VALUE = 0
 
 
 @dataclass
@@ -34,7 +35,7 @@ class RconPacket:
             len(body_encoded) + 10
         )  # Only value that can change is the length of the body, so do len(body) + 10.
         return (
-            struct.pack("<iii", self.size, self.id, self.type)
+            struct.pack("<iii", self.size, self.id, self.type.value)
             + body_encoded
             + self.terminator
         )
@@ -93,7 +94,7 @@ class SourceRcon:
 
         if (
             unpacked_packet.size is None
-            or unpacked_packet.type != RCONPacketType.SERVERDATA_AUTH_RESPONSE
+            or unpacked_packet.type != RCONPacketType.SERVERDATA_AUTH_RESPONSE.value
         ):
             logger.error("Invalid response or wrong packet type.")
             return False
@@ -101,14 +102,14 @@ class SourceRcon:
         return unpacked_packet.id != self.AUTH_FAILED_RESPONSE
 
     def auth_to_rcon(self, socket: socket.socket) -> bool:
-        # Authenticate to server rcon before sending command
+        # Create and send rcon authentication packer
         logger.debug("Authenticating to server rcon before sending command.")
         auth_packet = self.create_packet(
             self.RCON_PASSWORD, type=RCONPacketType.SERVERDATA_AUTH
         )
         socket.sendall(auth_packet)
 
-        # Get and parse authentication response
+        # Get and parse rcon authentication response
         auth_response = self.receive_all(socket)
         if self.check_auth_response(auth_response):
             logger.debug("rcon authentication successful.")
