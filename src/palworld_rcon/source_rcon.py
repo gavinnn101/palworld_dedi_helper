@@ -116,7 +116,7 @@ class SourceRcon:
             logger.debug("rcon authentication successful.")
             return True
         else:
-            logger.error("rcon authentication failed. Not running command.")
+            logger.error("rcon authentication failed.")
             return False
 
     def establish_connection(self, socket: socket.socket) -> bool:
@@ -143,6 +143,6 @@ class SourceRcon:
                 return "Failed to establish connection."
 
             if not self.auth_to_rcon(s):
-                return "Authentication failed."
+                return "Authentication failed. not running command."
 
             return self.execute_command(s, command)
