@@ -1,6 +1,9 @@
 """Utility for server administration via source rcon."""
+import argparse
+import os
 import socket
 import struct
+import sys
 
 from dataclasses import dataclass
 
@@ -146,3 +149,32 @@ class SourceRcon:
                 return "Authentication failed. not running command."
 
             return self.execute_command(s, command)
+
+
+def main():
+    # Default values from environment variables
+    default_ip = os.environ.get('palworld_server_ip')
+    default_port = os.environ.get('palworld_rcon_port')
+    default_password = os.environ.get('palworld_rcon_password')
+
+    parser = argparse.ArgumentParser(description="Palworld RCON Command Line Interface")
+    parser.add_argument("-ip", "--server_ip", type=str, default=default_ip, required=not default_ip, help="IP address of the RCON server")
+    parser.add_argument("-port", "--rcon_port", type=int, default=default_port, required=not default_port, help="Port of the RCON server")
+    parser.add_argument("-pwd", "--rcon_password", type=str, default=default_password, required=not default_password, help="RCON password")
+    parser.add_argument("-cmd", "--command", required=True, help="RCON command to execute")
+    parser.add_argument("-args", "--arguments", nargs='*', default=[], help="Arguments for the RCON command")
+    parser.add_argument("-ll", "--log_level", type=str, default="INFO", help="Log level to output at.")
+
+    args = parser.parse_args()
+
+    # Set log level
+    logger.remove()
+    logger.add(sys.stderr, level=args.log_level)
+
+    rcon = SourceRcon(args.server_ip, args.rcon_port, args.rcon_password)
+    command = args.command + " " + " ".join(args.arguments)
+    response = rcon.send_command(command)
+    print(response)
+
+if __name__ == "__main__":
+    main()
