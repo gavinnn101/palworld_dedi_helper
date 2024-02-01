@@ -6,6 +6,7 @@ Helper utilities for managing a Palworld dedicated server in python. Send rcon c
 
 ## Setup
 * Install python: https://www.python.org/downloads/
+* * Make sure to check the box `Add Python to PATH` when installing so you can call python from your terminal.
 * Install requirements: `pip install -r requirements.txt`
 
 ## Usage
@@ -18,7 +19,7 @@ Welcome to Pal Server[v0.1.3.0] My Palworld Server
 ```
 * See `./src/example.py` for basic usage.
 * See `./src/utility/palworld_util.py` for advanced params, etc.
-* See `./src/server_watcher.py`
+* See `./src/server_watcher.py` for:
 * * Automatic server restart when process goes down.
 * * Automatic server restarts on a timer.
 * * Automatic backups with rotation.
