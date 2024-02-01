@@ -150,7 +150,6 @@ class SourceRcon:
 
             # if command == "broadcast", replace spaces with \x1F in args[0](broadcast message string expected) to create fake spaces.
             if command.lower() == "broadcast":
-                logger.debug("joining broadcast string")
                 command = command + " " + args[0].replace(" ", "\x1F")
             else:
                 command = command + " " + " ".join(args)
