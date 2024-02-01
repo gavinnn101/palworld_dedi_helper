@@ -31,14 +31,17 @@ pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWOR
 # pal.take_server_backup()
 
 # # Send a broadcast to the server.
-# pal.log_and_broadcast("Server restart in 1 minute! Adding better network settings.")
+# pal.log_and_broadcast("This is a test message!")
 
 # Restart the server.
 # pal.restart_server(save_game=True, check_for_server_updates=True, backup_server=False)
 
 # Send rcon commands to the server
-response = pal.rcon.run_command("Info", [])
+response = pal.rcon.send_command("Info", [])
 logger.info(f"Info response: {response}")
 
-response = pal.rcon.run_command("ShowPlayers", [])
+response = pal.rcon.send_command("ShowPlayers", [])
 logger.info(f"ShowPlayers response: {response}")
+
+response = pal.rcon.send_command("Broadcast", ["test message 123"])
+logger.info(f"broadcast response: {response}")

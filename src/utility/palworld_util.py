@@ -1,4 +1,4 @@
-from palworld_rcon.main import PalworldRcon
+from palworld_rcon.source_rcon import SourceRcon
 from utility.util import check_for_process, kill_process
 
 import datetime
@@ -25,7 +25,7 @@ class PalworldUtil:
         steam_app_id: str = "2394010",  # Palworld dedicated server.
         server_port: int = 8211,
         max_players: int = 32,  # 32 players is max.
-        rcon: PalworldRcon = None,
+        rcon: SourceRcon = None,
         backup_dir: str = None,
         rotate_backups: bool = True,
         rotate_after_x_backups: int = 5,
@@ -51,7 +51,7 @@ class PalworldUtil:
         if rcon:
             self.rcon = rcon
         else:
-            self.rcon = PalworldRcon(self.server_ip, self.rcon_port, self.rcon_password)
+            self.rcon = SourceRcon(self.server_ip, self.rcon_port, self.rcon_password)
 
         # Create and use "$script_root/backups" dir if backups_dir isn't provided.
         if backup_dir is None:
@@ -79,7 +79,7 @@ class PalworldUtil:
             case "success":
                 logger.success(message)
         try:
-            self.rcon.run_command("Broadcast", [message.replace(" ", "_")])
+            self.rcon.run_command("Broadcast", [message])
         except OSError as e:
             logger.warning(f"Not able to send broadcast via log_and_broadcast(). Server online?")
             logger.debug(f"log_and_broadcast() error: {e}")
