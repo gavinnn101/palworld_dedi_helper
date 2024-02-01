@@ -211,16 +211,7 @@ def main():
     logger.add(sys.stderr, level=args.log_level)
 
     rcon = SourceRcon(args.server_ip, args.rcon_port, args.rcon_password)
-<<<<<<< Updated upstream
-    # if args.command == "broadcast", then join args.arguments with a \x1F instead of a space
-    if args.command.lower() == "broadcast":
-        command = args.command + " " + "\x1F".join(args.arguments)
-    else:
-        command = args.command + " " + " ".join(args.arguments)  
-    response = rcon.send_command(command)
-=======
     response = rcon.send_command(args.command, args.arguments)
->>>>>>> Stashed changes
     print(response)
 
 
