@@ -12,7 +12,7 @@ Helper utilities for managing a Palworld dedicated server in python. Send rcon c
 ## Usage
 * See `./src/palworld_rcon/source_rcon.py` for direct rcon usage.
 * * You can call rcon commands via cli
-* * Looks for environment variables: `palworld_server_ip`, `palworld_rcon_port`, `palworld_rcon_password`, otherwise they are required cli args.
+* * * Looks for environment variables: `palworld_server_ip`, `palworld_rcon_port`, `palworld_rcon_password`, otherwise they are required cli args.
 ```bash
 $.\palworld_dedi_helper\src\palworld_rcon> python source_rcon.py -cmd Info
 Welcome to Pal Server[v0.1.3.0] My Palworld Server
