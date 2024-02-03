@@ -81,7 +81,7 @@ class PalworldUtil:
             case "success":
                 logger.success(message)
         try:
-            self.rcon.run_command("Broadcast", [message])
+            self.rcon.send_command("Broadcast", [message])
         except OSError as e:
             logger.warning(f"Not able to send broadcast via log_and_broadcast(). Server online?")
             logger.debug(f"log_and_broadcast() error: {e}")
@@ -94,7 +94,7 @@ class PalworldUtil:
         SAVE_FINISHED_RESPONSE = "Complete Save"
 
         self.log_and_broadcast("Saving game state.")
-        response = self.rcon.run_command("Save")
+        response = self.rcon.send_command("Save")
         if response.strip() == SAVE_FINISHED_RESPONSE:
             self.log_and_broadcast("Save game state finished.")
             return True
