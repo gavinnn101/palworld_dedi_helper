@@ -15,34 +15,34 @@ from loguru import logger
 class PalworldUtil:
     def __init__(
         self,
-        steamcmd_dir: str,
-        server_name: str,
-        server_ip: str,
-        rcon_port: int,
-        rcon_password: str,
+        steamcmd_dir: str,  # Path to steamcmd.exe directory.
+        server_name: str,  # What you want the server name to be.
+        server_ip: str,  # public server ip (for rcon)
+        rcon_port: int,  # port your server rcon is listening on.
+        rcon_password: str,  # your server rcon password.
         palword_server_dir: str = None,  # Path to Palworld server root directory. Tries to find if not provided.
         palworld_server_proc_name: str = "PalServer-Win64-Test-Cmd.exe",  # Name of the palworld dedicated server process. Used for monitoring, restarting, etc.
-        wait_before_restart_seconds: int = 30,
+        wait_before_restart_seconds: int = 30,  # Seconds to wait after warning the server before starting the server restart process.
         steam_app_id: str = "2394010",  # Palworld dedicated server.
-        server_port: int = 8211,
+        server_port: int = 8211,  # Port to host the server on.
         max_players: int = 32,  # 32 players is max.
-        rcon: SourceRcon = None,
-        backup_dir: str = None,
-        rotate_backups: bool = True,
-        rotate_after_x_backups: int = 5,
-        operating_system: str = "windows",
+        rcon: SourceRcon = None,  # Will create a SourceRcon instance if not provided.
+        backup_dir: str = None,  # "$script_root/$backup_dir"
+        rotate_backups: bool = True,  # Delete oldest backups
+        rotate_after_x_backups: int = 5,  # Delete oldest backups after we have this many.
+        operating_system: str = "windows",  # "windows" or "linux".
         terminal: str = "gnome-terminal",  # Only used if `operating_system = "linux"`
     ) -> None:
-        self.steamcmd_dir = Path(steamcmd_dir)  # Path to steamcmd.exe directory.
-        self.server_name = server_name  # What you want the server name to be.
-        self.operating_system = operating_system.lower()  # "windows" or "linux".
+        self.steamcmd_dir = Path(steamcmd_dir)
+        self.server_name = server_name
+        self.operating_system = operating_system.lower()
 
         # rcon variables
         self.server_ip = server_ip
         self.rcon_port = rcon_port
         self.rcon_password = rcon_password
 
-        self.wait_before_restart_seconds = wait_before_restart_seconds  # Seconds to wait after warning the server before starting the server restart process.
+        self.wait_before_restart_seconds = wait_before_restart_seconds
         self.steam_app_id = steam_app_id
         self.server_port = server_port
         self.max_players = max_players
