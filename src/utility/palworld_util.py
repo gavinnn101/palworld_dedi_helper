@@ -53,12 +53,22 @@ class PalworldUtil:
             self.steamcmd_executable = "steamcmd.exe"
             self.palserver_executable = "PalServer.exe"
             self.palworld_server_dir = Path(self.steamcmd_dir / "steamapps" / "common" / "PalServer")
+            # os specific server launch options
             self.server_launch_args.append("start")
+            self.server_launch_args.append(self.palserver_executable)
+            self.server_launch_args.append(f"-ServerName={self.server_name}")
+            self.server_launch_args.append(f"-port={self.server_port}")
+            self.server_launch_args.append(f"-players={self.max_players}")
+            self.server_launch_args.append("-log")
+            self.server_launch_args.append("-nosteam")
         elif self.operating_system == "linux":
             self.palworld_server_proc_name = "PalServer.sh"
             self.steamcmd_executable = "./steamcmd"
             self.palserver_executable = "./PalServer.sh"
             self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
+            # os specific server launch options
+            self.server_launch_args.append(self.palserver_executable)
+            self.server_launch_args.append(f"port={self.server_port}")
         
         # Overwrite palworld_server_dir if set by user
         if palword_server_dir:
@@ -68,12 +78,6 @@ class PalworldUtil:
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
 
         # Common server launch args
-        self.server_launch_args.append(self.palserver_executable)
-        self.server_launch_args.append(f"-ServerName={self.server_name}")
-        self.server_launch_args.append(f"-port={self.server_port}")
-        self.server_launch_args.append(f"-players={self.max_players}")
-        self.server_launch_args.append("-log")
-        self.server_launch_args.append("-nosteam")
         self.server_launch_args.append("-useperfthreads")
         self.server_launch_args.append("-NoAsyncLoadingThread")
         self.server_launch_args.append("-UseMultithreadForDS")
