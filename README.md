@@ -2,7 +2,8 @@
 Helper utilities for managing a Palworld dedicated server in python. Send rcon commands, backup server, etc.
 
 * underlying rcon implementation should work fine on any OS if you want to use it directly.
-* `PalworldUtil` utilizes `steamcmd` and was only tested on Windows. Would likely work on linux with minor changes but is not currently implemented.
+* `PalworldUtil` has been tested and works on Windows and linux (ubuntu) following [Windows - (steamcmd) / Linux - (steamcmd) guides](https://tech.palworldgame.com/dedicated-server-guide)
+* * Some paths and executables are assumed but can be set by the user.
 
 ## Setup
 * Install python: https://www.python.org/downloads/
@@ -19,6 +20,7 @@ Welcome to Pal Server[v0.1.3.0] My Palworld Server
 ```
 * See `./src/example.py` for basic usage.
 * See `./src/utility/palworld_util.py` for advanced params, etc.
+* * If hosting on linux, make sure to pass `operating_system = "linux"`, otherwise defaults to windows.
 * See `./src/server_watcher.py` for:
 * * Automatic server restart when process goes down.
 * * Automatic server restarts on a timer.
