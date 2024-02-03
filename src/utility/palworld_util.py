@@ -20,7 +20,7 @@ class PalworldUtil:
         server_ip: str,
         rcon_port: int,
         rcon_password: str,
-        palword_server_dir: str = None, # Path to Palworld server root directory. Tries to find if not provided.
+        palword_server_dir: str = None,  # Path to Palworld server root directory. Tries to find if not provided.
         palworld_server_proc_name: str = "PalServer-Win64-Test-Cmd.exe",  # Name of the palworld dedicated server process. Used for monitoring, restarting, etc.
         wait_before_restart_seconds: int = 30,
         steam_app_id: str = "2394010",  # Palworld dedicated server.
@@ -31,7 +31,7 @@ class PalworldUtil:
         rotate_backups: bool = True,
         rotate_after_x_backups: int = 5,
         operating_system: str = "windows",
-        terminal: str = "gnome-terminal"    # Only used if `operating_system = "linux"`
+        terminal: str = "gnome-terminal",  # Only used if `operating_system = "linux"`
     ) -> None:
         self.steamcmd_dir = Path(steamcmd_dir)  # Path to steamcmd.exe directory.
         self.server_name = server_name  # What you want the server name to be.
@@ -53,7 +53,9 @@ class PalworldUtil:
             self.palworld_server_proc_name = palworld_server_proc_name
             self.steamcmd_executable = "steamcmd.exe"
             self.palserver_executable = "PalServer.exe"
-            self.palworld_server_dir = Path(self.steamcmd_dir / "steamapps" / "common" / "PalServer")
+            self.palworld_server_dir = Path(
+                self.steamcmd_dir / "steamapps" / "common" / "PalServer"
+            )
             self.start_new_session = False
             # os specific server launch options
             self.server_launch_args.append("start")
@@ -67,19 +69,21 @@ class PalworldUtil:
             self.palworld_server_proc_name = "PalServer.sh"
             self.steamcmd_executable = "./steamcmd"
             self.palserver_executable = "./PalServer.sh"
-            self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
+            self.palworld_server_dir = Path(
+                "/home/steam/Steam/steamapps/common/PalServer"
+            )
             self.terminal = terminal
-            self.start_new_session = True
+            self.start_new_session = True  # Detaches server process from python script.
             # os specific server launch options
             self.server_launch_args.append(terminal)
             self.server_launch_args.append("--")
             self.server_launch_args.append(self.palserver_executable)
             self.server_launch_args.append(f"port={self.server_port}")
-        
+
         # Overwrite palworld_server_dir if set by user
         if palword_server_dir:
             self.palworld_server_dir = palword_server_dir
-        
+
         # Set path to Palworld server saves
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
 
@@ -175,8 +179,12 @@ class PalworldUtil:
             logger.info(f"Changing to palworld server dir: {self.palworld_server_dir}")
             os.chdir(self.palworld_server_dir)
 
-        logger.info(f"Launching {self.palserver_executable} : {self.server_launch_args}...")
-        subprocess.Popen(self.server_launch_args, start_new_session=self.start_new_session)
+        logger.info(
+            f"Launching {self.palserver_executable} : {self.server_launch_args}..."
+        )
+        subprocess.Popen(
+            self.server_launch_args, start_new_session=self.start_new_session
+        )
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
