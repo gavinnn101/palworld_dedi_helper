@@ -1,4 +1,5 @@
 """Utility for server administration via source rcon."""
+
 import argparse
 import os
 import socket
