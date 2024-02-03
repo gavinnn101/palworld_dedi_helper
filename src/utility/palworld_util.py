@@ -165,7 +165,7 @@ class PalworldUtil:
             logger.info(f"Changing to palworld server dir: {self.palworld_server_dir}")
             os.chdir(self.palworld_server_dir)
 
-        logger.info(f"Launching {self.palserver_executable}...")
+        logger.info(f"Launching {self.palserver_executable} : {self.server_launch_args}...")
         subprocess.Popen(self.server_launch_args, shell=True)
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
