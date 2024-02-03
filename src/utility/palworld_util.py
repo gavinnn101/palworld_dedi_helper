@@ -29,6 +29,7 @@ class PalworldUtil:
         backup_dir: str = None,
         rotate_backups: bool = True,
         rotate_after_x_backups: int = 5,
+        operating_system: str = "windows",
     ) -> None:
         self.steamcmd_dir = steamcmd_dir  # Path to steamcmd.exe directory.
         self.palworld_server_dir = Path(
@@ -36,6 +37,7 @@ class PalworldUtil:
         )  # Full path to the root directory of your palworld server files.
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
         self.server_name = server_name  # What you want the server name to be.
+        self.operating_system = operating_system.lower()    # "windows" or "linux".
 
         # rcon variables
         self.server_ip = server_ip
@@ -106,15 +108,22 @@ class PalworldUtil:
         if os.getcwd() != self.steamcmd_dir:
             logger.info(f"Changing to steamcmd dir: {self.steamcmd_dir}")
             os.chdir(self.steamcmd_dir)
+        
+        base_executable = "steamcmd"
+        if self.operating_system == "windows":
+            steamcmd_executable = base_executable + ".exe"
+        elif self.operating_system == "linux":
+            steamcmd_executable = base_executable
 
         logger.info("Checking for game server updates...")
         subprocess.call(
             [
-                "steamcmd.exe",
+                steamcmd_executable,
                 "+login",
                 "anonymous",
                 "+app_update",
                 self.steam_app_id,
+                "validate",
                 "+quit",
             ]
         )
@@ -131,23 +140,28 @@ class PalworldUtil:
         if os.getcwd() != self.palworld_server_dir:
             logger.info(f"Changing to palworld server dir: {self.palworld_server_dir}")
             os.chdir(self.palworld_server_dir)
+        
+        # Set process args based on os.
+        process_args = []
+        base_server_launcher = "PalServer"
+        if self.operating_system == "windows":
+            palserver_executable = f"{base_server_launcher}.exe"
+            process_args.append("start")
+        elif self.operating_system == "linux":
+            palserver_executable = f"./{base_server_launcher}.sh"
+        # Common args
+        process_args.append(palserver_executable)
+        process_args.append(f"-ServerName={self.server_name}")
+        process_args.append(f"-port={self.server_port}")
+        process_args.append(f"-players={self.max_players}")
+        process_args.append("-log")
+        process_args.append("-nosteam")
+        process_args.append("-useperfthreads")
+        process_args.append("-NoAsyncLoadingThread")
+        process_args.append("-UseMultithreadForDS")
 
-        logger.info("Launching Palserver.exe...")
-        subprocess.Popen(
-            [
-                "start",
-                "PalServer.exe",
-                f"-ServerName={self.server_name}",
-                f"-port={self.server_port}",
-                f"-players={self.max_players}",
-                "-log",
-                "-nosteam",
-                "-useperfthreads",
-                "-NoAsyncLoadingThread",
-                "-UseMultithreadForDS",
-            ],
-            shell=True,
-        )
+        logger.info(f"Launching {palserver_executable}...")
+        subprocess.Popen(process_args, shell=True)
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
