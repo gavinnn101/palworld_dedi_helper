@@ -21,6 +21,7 @@ ROTATE_AFTER_X_BACKUPS = 20  # -1 if you don't want to rotate backups.
 ROTATE_LOGS_EVERY_X_RUNS = 10  # -1 if you don't want to log to file.
 LOG_LEVEL = "INFO"
 LOGS_DIR = "logs"
+OPERATING_SYSTEM = "windows"  # Change to "linux" if needed.
 
 
 STEAMCMD_DIR = os.getenv("steamcmd_dir")
@@ -100,7 +101,7 @@ def main():
         )
 
     # Create PalworldUtil instance with required vars only.
-    pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD, operating_system="linux", server_port=8212)
+    pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD, operating_system=OPERATING_SYSTEM)
 
     if ROTATE_AFTER_X_BACKUPS > 0:
         pal.rotate_after_x_backups = ROTATE_AFTER_X_BACKUPS
