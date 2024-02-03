@@ -1,4 +1,5 @@
 """Handles server uptime with auto restart, auto backup, etc."""
+
 from utility.palworld_util import PalworldUtil
 from utility.util import check_for_process
 
@@ -101,7 +102,14 @@ def main():
         )
 
     # Create PalworldUtil instance with required vars only.
-    pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD, operating_system=OPERATING_SYSTEM)
+    pal = PalworldUtil(
+        STEAMCMD_DIR,
+        SERVER_NAME,
+        SERVER_IP,
+        RCON_PORT,
+        RCON_PASSWORD,
+        operating_system=OPERATING_SYSTEM,
+    )
 
     if ROTATE_AFTER_X_BACKUPS > 0:
         pal.rotate_after_x_backups = ROTATE_AFTER_X_BACKUPS
