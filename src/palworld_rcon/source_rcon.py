@@ -71,7 +71,7 @@ class SourceRcon:
         command: str,
         request_id: int = 1,
         type: RCONPacketType = RCONPacketType.SERVERDATA_EXECCOMMAND,
-    ):
+    ) -> RconPacket:
         packet = RconPacket(id=request_id, type=type, body=command)
         final_packet = packet.pack()
 
