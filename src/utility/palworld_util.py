@@ -20,7 +20,7 @@ class PalworldUtil:
         server_ip: str,  # public server ip (for rcon)
         rcon_port: int,  # port your server rcon is listening on.
         rcon_password: str,  # your server rcon password.
-        palword_server_dir: str = None,  # Path to Palworld server root directory. Tries to find if not provided.
+        palword_server_dir: str = None,  # Path to Palworld server root directory. Tries to find based on operating_system if not provided.
         palworld_server_proc_name: str = "PalServer-Win64-Test-Cmd.exe",  # Name of the palworld dedicated server process. Used for monitoring, restarting, etc.
         wait_before_restart_seconds: int = 30,  # Seconds to wait after warning the server before starting the server restart process.
         steam_app_id: str = "2394010",  # Palworld dedicated server.
@@ -148,11 +148,6 @@ class PalworldUtil:
 
     def update_game_server(self):
         """Calls steamcmd process on steam_app_id to get game / server updates."""
-        # Change to steamcmd directory if needed.
-        if os.getcwd() != self.steamcmd_dir:
-            logger.info(f"Changing to steamcmd dir: {self.steamcmd_dir}")
-            os.chdir(self.steamcmd_dir)
-
         logger.info("Checking for game server updates...")
         subprocess.call(
             [
@@ -163,7 +158,10 @@ class PalworldUtil:
                 self.steam_app_id,
                 "validate",
                 "+quit",
-            ]
+            ],
+            cwd=self.steamcmd_dir,
+            start_new_session=self.start_new_session,
+            shell=not self.start_new_session,
         )
 
     def launch_server(self, update_server: bool = True):
@@ -174,16 +172,14 @@ class PalworldUtil:
         else:
             logger.info("Skipping game server updates.")
 
-        # Change to Palserver.exe directory if needed.
-        if os.getcwd() != self.palworld_server_dir:
-            logger.info(f"Changing to palworld server dir: {self.palworld_server_dir}")
-            os.chdir(self.palworld_server_dir)
-
         logger.info(
             f"Launching {self.palserver_executable} : {self.server_launch_args}..."
         )
         subprocess.Popen(
-            self.server_launch_args, start_new_session=self.start_new_session
+            self.server_launch_args,
+            cwd=self.palworld_server_dir,
+            start_new_session=self.start_new_session,
+            shell=not self.start_new_session,
         )
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
