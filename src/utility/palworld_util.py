@@ -78,9 +78,9 @@ class PalworldUtil:
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
 
         # Common server launch args
-        self.server_launch_args.append("-useperfthreads")
-        self.server_launch_args.append("-NoAsyncLoadingThread")
-        self.server_launch_args.append("-UseMultithreadForDS")
+        # self.server_launch_args.append("-useperfthreads")
+        # self.server_launch_args.append("-NoAsyncLoadingThread")
+        # self.server_launch_args.append("-UseMultithreadForDS")
 
         if rcon:
             self.rcon = rcon
