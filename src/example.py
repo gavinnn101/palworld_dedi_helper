@@ -43,5 +43,7 @@ logger.info(f"Info response: {response}")
 response = pal.rcon.send_command("ShowPlayers", [])
 logger.info(f"ShowPlayers response: {response}")
 
-response = pal.rcon.send_command("Broadcast", ["test message 123"])
-logger.info(f"broadcast response: {response}")
+pal.restart_server()
+
+# response = pal.rcon.send_command("Broadcast", ["test message 123"])
+# logger.info(f"broadcast response: {response}")
