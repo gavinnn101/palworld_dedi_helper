@@ -78,9 +78,9 @@ class PalworldUtil:
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
 
         # Common server launch args
-        # self.server_launch_args.append("-useperfthreads")
-        # self.server_launch_args.append("-NoAsyncLoadingThread")
-        # self.server_launch_args.append("-UseMultithreadForDS")
+        self.server_launch_args.append("-useperfthreads")
+        self.server_launch_args.append("-NoAsyncLoadingThread")
+        self.server_launch_args.append("-UseMultithreadForDS")
 
         if rcon:
             self.rcon = rcon
@@ -170,7 +170,7 @@ class PalworldUtil:
             os.chdir(self.palworld_server_dir)
 
         logger.info(f"Launching {self.palserver_executable} : {self.server_launch_args}...")
-        subprocess.Popen(self.server_launch_args, shell=True)
+        subprocess.Popen(self.server_launch_args)
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
