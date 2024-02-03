@@ -31,6 +31,7 @@ class PalworldUtil:
         rotate_backups: bool = True,
         rotate_after_x_backups: int = 5,
         operating_system: str = "windows",
+        terminal: str = "gnome-terminal"    # Only used if `operating_system = "linux"`
     ) -> None:
         self.steamcmd_dir = Path(steamcmd_dir)  # Path to steamcmd.exe directory.
         self.server_name = server_name  # What you want the server name to be.
@@ -66,7 +67,10 @@ class PalworldUtil:
             self.steamcmd_executable = "./steamcmd"
             self.palserver_executable = "./PalServer.sh"
             self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
+            self.terminal = terminal
             # os specific server launch options
+            self.server_launch_args.append(terminal)
+            self.server_launch_args.append("--")
             self.server_launch_args.append(self.palserver_executable)
             self.server_launch_args.append(f"port={self.server_port}")
         
