@@ -55,7 +55,7 @@ class PalworldUtil:
             self.palworld_server_dir = Path(self.steamcmd_dir / "steamapps" / "common" / "PalServer")
             self.server_launch_args.append("start")
         elif self.operating_system == "linux":
-            self.palworld_server_proc_name = "./PalServer.sh"
+            self.palworld_server_proc_name = "PalServer.sh"
             self.steamcmd_executable = "steamcmd"
             self.palserver_executable = "./PalServer.sh"
             self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
