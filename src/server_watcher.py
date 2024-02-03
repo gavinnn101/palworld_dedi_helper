@@ -100,7 +100,7 @@ def main():
         )
 
     # Create PalworldUtil instance with required vars only.
-    pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD)
+    pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD, operating_system="linux", server_port=8212)
 
     if ROTATE_AFTER_X_BACKUPS > 0:
         pal.rotate_after_x_backups = ROTATE_AFTER_X_BACKUPS
