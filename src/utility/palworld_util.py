@@ -33,7 +33,6 @@ class PalworldUtil:
         operating_system: str = "windows",
     ) -> None:
         self.steamcmd_dir = Path(steamcmd_dir)  # Path to steamcmd.exe directory.
-        self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
         self.server_name = server_name  # What you want the server name to be.
         self.operating_system = operating_system.lower()  # "windows" or "linux".
 
@@ -64,6 +63,9 @@ class PalworldUtil:
         # Overwrite palworld_server_dir if set by user
         if palword_server_dir:
             self.palworld_server_dir = palword_server_dir
+        
+        # Set path to Palworld server saves
+        self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
 
         # Common server launch args
         self.server_launch_args.append(self.palserver_executable)
