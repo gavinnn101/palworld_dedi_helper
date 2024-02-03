@@ -18,7 +18,7 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 # Create PalworldUtil instance with required vars only.
-pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD, operating_system="linux", wait_before_restart_seconds=5)
+pal = PalworldUtil(STEAMCMD_DIR, SERVER_NAME, SERVER_IP, RCON_PORT, RCON_PASSWORD)
 
 # Don't rotate backups.
 # pal.rotate_backups = False
@@ -43,7 +43,5 @@ logger.info(f"Info response: {response}")
 response = pal.rcon.send_command("ShowPlayers", [])
 logger.info(f"ShowPlayers response: {response}")
 
-pal.restart_server()
-
-# response = pal.rcon.send_command("Broadcast", ["test message 123"])
-# logger.info(f"broadcast response: {response}")
+response = pal.rcon.send_command("Broadcast", ["test message 123"])
+logger.info(f"broadcast response: {response}")
