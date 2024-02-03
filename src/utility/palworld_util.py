@@ -20,6 +20,7 @@ class PalworldUtil:
         server_ip: str,
         rcon_port: int,
         rcon_password: str,
+        palword_server_dir: str = None, # Path to Palworld server root directory. Tries to find if not provided.
         palworld_server_proc_name: str = "PalServer-Win64-Test-Cmd.exe",  # Name of the palworld dedicated server process. Used for monitoring, restarting, etc.
         wait_before_restart_seconds: int = 30,
         steam_app_id: str = "2394010",  # Palworld dedicated server.
@@ -31,10 +32,7 @@ class PalworldUtil:
         rotate_after_x_backups: int = 5,
         operating_system: str = "windows",
     ) -> None:
-        self.steamcmd_dir = steamcmd_dir  # Path to steamcmd.exe directory.
-        self.palworld_server_dir = Path(
-            Path(self.steamcmd_dir) / "steamapps" / "common" / "PalServer"
-        )  # Full path to the root directory of your palworld server files.
+        self.steamcmd_dir = Path(steamcmd_dir)  # Path to steamcmd.exe directory.
         self.palworld_server_save_dir = Path(self.palworld_server_dir / "Pal" / "Saved")
         self.server_name = server_name  # What you want the server name to be.
         self.operating_system = operating_system.lower()  # "windows" or "linux".
@@ -55,11 +53,17 @@ class PalworldUtil:
             self.palworld_server_proc_name = palworld_server_proc_name
             self.steamcmd_executable = "steamcmd.exe"
             self.palserver_executable = "PalServer.exe"
+            self.palworld_server_dir = Path(self.steamcmd_dir / "steamapps" / "common" / "PalServer")
             self.server_launch_args.append("start")
         elif self.operating_system == "linux":
             self.palworld_server_proc_name = "./PalServer.sh"
             self.steamcmd_executable = "steamcmd"
             self.palserver_executable = "./PalServer.sh"
+            self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
+        
+        # Overwrite palworld_server_dir if set by user
+        if palword_server_dir:
+            self.palworld_server_dir = palword_server_dir
 
         # Common server launch args
         self.server_launch_args.append(self.palserver_executable)
