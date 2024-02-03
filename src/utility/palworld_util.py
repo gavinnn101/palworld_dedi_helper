@@ -54,6 +54,7 @@ class PalworldUtil:
             self.steamcmd_executable = "steamcmd.exe"
             self.palserver_executable = "PalServer.exe"
             self.palworld_server_dir = Path(self.steamcmd_dir / "steamapps" / "common" / "PalServer")
+            self.start_new_session = False
             # os specific server launch options
             self.server_launch_args.append("start")
             self.server_launch_args.append(self.palserver_executable)
@@ -68,6 +69,7 @@ class PalworldUtil:
             self.palserver_executable = "./PalServer.sh"
             self.palworld_server_dir = Path("/home/steam/Steam/steamapps/common/PalServer")
             self.terminal = terminal
+            self.start_new_session = True
             # os specific server launch options
             self.server_launch_args.append(terminal)
             self.server_launch_args.append("--")
@@ -174,7 +176,7 @@ class PalworldUtil:
             os.chdir(self.palworld_server_dir)
 
         logger.info(f"Launching {self.palserver_executable} : {self.server_launch_args}...")
-        subprocess.Popen(self.server_launch_args)
+        subprocess.Popen(self.server_launch_args, start_new_session=self.start_new_session)
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
