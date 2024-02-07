@@ -107,7 +107,7 @@ class SourceRcon:
         return unpacked_packet.id != self.AUTH_FAILED_RESPONSE
 
     def auth_to_rcon(self, socket: socket.socket) -> bool:
-        # Create and send rcon authentication packer
+        # Create and send rcon authentication packet
         logger.debug("Authenticating to server rcon before sending command.")
         auth_packet = self.create_packet(
             self.RCON_PASSWORD, type=RCONPacketType.SERVERDATA_AUTH
@@ -128,7 +128,7 @@ class SourceRcon:
             socket.connect((self.SERVER_IP, self.RCON_PORT))
             logger.debug("Socket connection successful.")
             return True
-        except socket.error as e:
+        except socket.timeout as e:
             logger.error(f"Failed to connect to socket. Error: {e}")
             return False
 
@@ -141,8 +141,10 @@ class SourceRcon:
         logger.debug(f"Command response: {unpacked_packet.body}")
         return unpacked_packet.body
 
-    def send_command(self, command: str, args: list = []) -> str:
+    def send_command(self, command: str, args: list = [], timeout: int = 10) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Set socket connection timeout.
+            s.settimeout(timeout)
             if not self.establish_connection(s):
                 return "Failed to establish connection."
 
