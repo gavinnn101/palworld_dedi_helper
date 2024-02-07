@@ -151,9 +151,10 @@ class SourceRcon:
             if not self.auth_to_rcon(s):
                 return "Authentication failed. not running command."
 
-            # if command == "broadcast", replace spaces with \x1F in args[0](broadcast message string expected) to create fake spaces.
             if command.lower() == "broadcast":
-                command = command + " " + args[0].replace(" ", "\x1F")
+                broadcast_msg = args[0]
+                # Replace spaces with fake spaces since palworld doesnt parse them correctly.
+                command + " " + broadcast_msg.replace(" ", "\x1F")
             else:
                 command = command + " " + " ".join(args)
 
