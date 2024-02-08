@@ -162,7 +162,8 @@ class SourceRcon:
             return self.execute_command(s, command)
 
 
-def main():
+def get_cli_args():
+    """Get provided cli args or use environment defaults if provided."""
     # Default values from environment variables
     default_ip = os.environ.get("palworld_server_ip")
     default_port = os.environ.get("palworld_rcon_port")
@@ -208,7 +209,11 @@ def main():
     )
 
     args = parser.parse_args()
+    return args
 
+
+def main():
+    args = get_cli_args()
     # Set log level
     logger.remove()
     logger.add(sys.stderr, level=args.log_level)
