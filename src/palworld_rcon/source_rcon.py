@@ -128,8 +128,8 @@ class SourceRcon:
             socket.connect((self.SERVER_IP, self.RCON_PORT))
             logger.debug("Socket connection successful.")
             return True
-        except socket.timeout:
-            logger.error(f"Timeout occurred while establishing a connection.")
+        except Exception as e:
+            logger.error(f"Error while establishing a connection: {e}")
             return False
 
     def execute_command(self, socket: socket.socket, command: str) -> str:
