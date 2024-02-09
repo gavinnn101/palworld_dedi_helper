@@ -154,9 +154,11 @@ class SourceRcon:
             if command.lower() == "broadcast":
                 broadcast_msg = args[0]
                 # Replace spaces with fake spaces since palworld doesnt parse them correctly.
-                command + " " + broadcast_msg.replace(" ", "\x1F")
+                fixed_broadcast_msg = broadcast_msg.replace(" ", "\x1F")
+                command = f"{command} {fixed_broadcast_msg}"
             else:
-                command = command + " " + " ".join(args)
+                args = " ".join(args)
+                command = f"{command} {args}"
 
             logger.debug(f"Sending command: {command}")
             return self.execute_command(s, command)
