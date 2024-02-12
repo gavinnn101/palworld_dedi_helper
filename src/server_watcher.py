@@ -66,7 +66,7 @@ def watcher_loop(pal: PalworldUtil):
 
             if not check_for_process(pal.palworld_server_proc_name):
                 logger.info(f"Server process not found, restarting...")
-                pal.launch_server()
+                pal.launch_server(wait_for_server_proc=True)
                 last_restart = time.time()
                 logger.info(
                     f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"

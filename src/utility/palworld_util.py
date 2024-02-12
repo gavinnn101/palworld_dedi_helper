@@ -164,7 +164,12 @@ class PalworldUtil:
             shell=not self.start_new_session,
         )
 
-    def launch_server(self, update_server: bool = True):
+    def launch_server(
+        self,
+        update_server: bool = True,
+        wait_for_server_proc: bool = False,
+        wait_timeout_secs: int = 10,
+    ) -> bool:
         """Launches Palserver with specified parameters."""
         # Check for server updates before launching.
         if update_server:
@@ -181,6 +186,22 @@ class PalworldUtil:
             start_new_session=self.start_new_session,
             shell=not self.start_new_session,
         )
+        # Wait for server process to start before returning
+        if wait_for_server_proc:
+            start_time = time.time()
+            logger.debug("Waiting to find server process...")
+            while True:
+                if check_for_process(self.palworld_server_proc_name):
+                    logger.debug("Server process found.")
+                    return True
+                elif time.time() - start_time > wait_timeout_secs:
+                    logger.error("Timeout reached while waiting for server process, returning False.")
+                    return False
+                else:
+                    time.sleep(1)
+        else:
+            # Not checking the outcome so we just return True.
+            return True
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
