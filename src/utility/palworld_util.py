@@ -236,6 +236,8 @@ class PalworldUtil:
         save_game: bool = True,
         check_for_server_updates: bool = True,
         backup_server: bool = True,
+        wait_for_rcon_port: bool = False,
+        wait_for_rcon_port_timeout: int = 10,
     ):
         """Restart Palword server with extra maintenance options."""
         # Sleep before starting server restart process.
@@ -267,4 +269,8 @@ class PalworldUtil:
             logger.info("Skipping server backup.")
 
         # Launch server.
-        self.launch_server(update_server=check_for_server_updates)
+        self.launch_server(
+            update_server=check_for_server_updates,
+            wait_for_rcon_port=wait_for_rcon_port,
+            wait_for_rcon_port_timeout=wait_for_rcon_port_timeout,
+        )

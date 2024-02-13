@@ -23,8 +23,12 @@ ROTATE_LOGS_EVERY_X_RUNS = 10  # -1 if you don't want to log to file.
 LOG_LEVEL = "INFO"
 LOGS_DIR = "logs"
 OPERATING_SYSTEM = "windows"  # Change to "linux" if needed.
-WAIT_FOR_RCON_PORT = True   # Waits for the rcon port to be available after launching the server.
-WAIT_FOR_RCON_PORT_TIMEOUT = 30 # How long to wait in seconds for the RCON port to be available.
+WAIT_FOR_RCON_PORT = (
+    True  # Waits for the rcon port to be available after launching the server.
+)
+WAIT_FOR_RCON_PORT_TIMEOUT = (
+    30  # How long to wait in seconds for the RCON port to be available.
+)
 
 
 STEAMCMD_DIR = os.getenv("steamcmd_dir")
@@ -48,7 +52,10 @@ def log_initial_timers():
     if BACKUP_EVERY_X_MINUTES > 0:
         logger.info(f"Next backup in: {BACKUP_EVERY_X_MINUTES} minutes")
 
-def watcher_loop(pal: PalworldUtil, wait_for_rcon: bool = False, wait_for_rcon_timeout: int = 10):
+
+def watcher_loop(
+    pal: PalworldUtil, wait_for_rcon: bool = False, wait_for_rcon_timeout: int = 10
+):
     last_restart = last_backup = time.time()
     log_initial_timers()
 
@@ -67,7 +74,10 @@ def watcher_loop(pal: PalworldUtil, wait_for_rcon: bool = False, wait_for_rcon_t
 
             if not check_for_process(pal.palworld_server_proc_name):
                 logger.info(f"Server process not found, restarting...")
-                pal.launch_server(wait_for_rcon_port=wait_for_rcon, wait_for_rcon_port_timeout=wait_for_rcon_timeout)
+                pal.launch_server(
+                    wait_for_rcon_port=wait_for_rcon,
+                    wait_for_rcon_port_timeout=wait_for_rcon_timeout,
+                )
                 last_restart = time.time()
                 logger.info(
                     f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
@@ -77,7 +87,11 @@ def watcher_loop(pal: PalworldUtil, wait_for_rcon: bool = False, wait_for_rcon_t
                 pal.log_and_broadcast(
                     f"Restarting server after {minutes_since_last_restart} minutes..."
                 )
-                pal.restart_server(backup_server=BACKUP_ON_RESTART)
+                pal.restart_server(
+                    backup_server=BACKUP_ON_RESTART,
+                    wait_for_rcon_port=wait_for_rcon,
+                    wait_for_rcon_port_timeout=wait_for_rcon_timeout,
+                )
                 last_restart = time.time()
                 pal.log_and_broadcast(
                     f"Next server restart in: {AUTOMATIC_RESTART_EVERY_X_MINUTES} minutes"
@@ -120,7 +134,11 @@ def main():
     pal.wait_before_restart_seconds = WAIT_BEFORE_RESTART_SECONDS
 
     try:
-        watcher_loop(pal, wait_for_rcon=WAIT_FOR_RCON_PORT, wait_for_rcon_timeout=WAIT_FOR_RCON_PORT_TIMEOUT)
+        watcher_loop(
+            pal,
+            wait_for_rcon=WAIT_FOR_RCON_PORT,
+            wait_for_rcon_timeout=WAIT_FOR_RCON_PORT_TIMEOUT,
+        )
     except KeyboardInterrupt:
         logger.info("Caught keyboard interrupt, ending server_watcher...")
         sys.exit(0)
