@@ -4,6 +4,7 @@ from utility.util import check_for_process, kill_process
 import datetime
 import os
 import shutil
+import socket
 import subprocess
 import time
 
@@ -164,11 +165,27 @@ class PalworldUtil:
             shell=not self.start_new_session,
         )
 
+    def wait_for_rcon_port(self, timeout_secs: int = 10):
+        """Waits until success or timeout for connection to rcon."""
+        CONNECTION_SUCCESS_CODE = 0
+        start_time = time.time()
+        logger.debug(f"Waiting for RCON port ({self.rcon_port}) to be available...")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            while time.time() - start_time < timeout_secs:
+                result = s.connect_ex((self.server_ip, self.rcon_port))
+                if result == CONNECTION_SUCCESS_CODE:
+                    logger.debug(f"Rcon port ({self.rcon_port}) ready for connections.")
+                    return True
+                else:
+                    time.sleep(1)
+        logger.warning("Timed out while waiting for rcon port.")
+        return False
+
     def launch_server(
         self,
         update_server: bool = True,
-        wait_for_server_proc: bool = False,
-        wait_timeout_secs: int = 10,
+        wait_for_rcon_port: bool = False,
+        wait_for_rcon_port_timeout: int = 10,
     ) -> bool:
         """Launches Palserver with specified parameters."""
         # Check for server updates before launching.
@@ -186,22 +203,9 @@ class PalworldUtil:
             start_new_session=self.start_new_session,
             shell=not self.start_new_session,
         )
-        # Wait for server process to start before returning
-        if wait_for_server_proc:
-            start_time = time.time()
-            logger.debug("Waiting to find server process...")
-            while True:
-                if check_for_process(self.palworld_server_proc_name):
-                    logger.debug("Server process found.")
-                    return True
-                elif time.time() - start_time > wait_timeout_secs:
-                    logger.error("Timeout reached while waiting for server process, returning False.")
-                    return False
-                else:
-                    time.sleep(1)
-        else:
-            # Not checking the outcome so we just return True.
-            return True
+
+        if wait_for_rcon_port:
+            self.wait_for_rcon_port(timeout_secs=wait_for_rcon_port_timeout)
 
     def take_server_backup(self, timestamp_format: str = "%Y%m%d_%H%M%S"):
         timestamp = datetime.datetime.now().strftime(timestamp_format)
