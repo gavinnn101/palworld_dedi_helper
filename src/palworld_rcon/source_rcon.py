@@ -143,7 +143,6 @@ class SourceRcon:
 
     def send_command(self, command: str, args: list = [], timeout: int = 10) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # Set socket connection timeout.
             s.settimeout(timeout)
             if not self.establish_connection(s):
                 return "Failed to establish connection."
@@ -216,6 +215,7 @@ def get_cli_args():
 
 def main():
     args = get_cli_args()
+
     # Set log level
     logger.remove()
     logger.add(sys.stderr, level=args.log_level)
