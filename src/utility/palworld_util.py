@@ -33,6 +33,7 @@ class PalworldUtil:
         rotate_after_x_backups: int = 5,  # Delete oldest backups after we have this many.
         operating_system: str = "windows",  # "windows" or "linux".
         terminal: str = "gnome-terminal",  # Only used if `operating_system = "linux"`
+        public_server: bool = False,  # If True, add `-publiclobby` to launch args.
     ) -> None:
         self.steamcmd_dir = Path(steamcmd_dir)
         self.server_name = server_name
@@ -49,6 +50,7 @@ class PalworldUtil:
         self.max_players = max_players
 
         self.server_launch_args = []
+        self.public_server = public_server
 
         if self.operating_system == "windows":
             self.palworld_server_proc_name = palworld_server_proc_name
@@ -80,6 +82,10 @@ class PalworldUtil:
             self.server_launch_args.append("--")
             self.server_launch_args.append(self.palserver_executable)
             self.server_launch_args.append(f"port={self.server_port}")
+        
+        # Add public server launch arg if needed
+        if self.public_server:
+            self.server_launch_args.append("-publiclobby")
 
         # Overwrite palworld_server_dir if set by user
         if palword_server_dir:
